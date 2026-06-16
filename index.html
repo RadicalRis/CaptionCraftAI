@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CaptionCraft AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@500;700&family=Source+Sans+3:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9f9',
+                            100: '#d9f0f0',
+                            500: '#2d7a7a',
+                            900: '#132c2c',
+                        },
+                        surface: {
+                            50: '#f9fafb',
+                            100: '#f3f4f6',
+                            200: '#e5e7eb',
+                        },
+                        charcoal: '#1f2937',
+                    },
+                    fontFamily: {
+                        display: ['Outfit', 'Inter', 'sans-serif'],
+                        body: ['"Source Sans 3"', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out forwards',
+                        'slide-up': 'slideUp 0.5s ease-out forwards',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: radial-gradient(circle at top left, #d9f0f0, transparent 40%),
+                radial-gradient(circle at bottom right, #132c2c, transparent 45%),
+                linear-gradient(180deg, #f8fafc, #eef2f7);
+            color: #1f2937;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
+        }
+
+        .content-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .content-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        }
+
+        ::selection {
+            background: #d9f0f0;
+            color: #132c2c;
+        }
+    </style>
+</head>
+
+<body class="font-body selection:bg-brand-100">
+    <header class="py-12 px-6 animate-fade-in">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="font-display text-4xl md:text-5xl font-bold tracking-tight text-charcoal mb-4">
+                CaptionCraft <span class="text-brand-500">AI</span>
+            </h1>
+            <p class="text-slate-600 max-w-xl mx-auto">Generate small-business captions, hashtags, CTAs, and future post ideas in seconds.</p>
+            <div class="h-1 w-20 bg-brand-500 mx-auto rounded-full opacity-60 mt-4"></div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 pb-20">
+        <section class="mb-12 animate-slide-up">
+            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-surface-200">
+                <h2 class="font-display text-2xl font-bold text-charcoal mb-6">Create Your Post</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="businessType" class="text-sm font-semibold">Business Type</label>
+                        <select id="businessType" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                            <option>Restaurant</option>
+                            <option>Coffee Shop</option>
+                            <option>Gym</option>
+                            <option>Clothing Store</option>
+                            <option>Real Estate</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="platform" class="text-sm font-semibold">Platform</label>
+                        <select id="platform" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                            <option>Instagram</option>
+                            <option>Facebook</option>
+                            <option>TikTok</option>
+                            <option>LinkedIn</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="topic" class="text-sm font-semibold">Post Topic</label>
+                        <input id="topic" type="text" placeholder="e.g. Weekend sale" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                    </div>
+
+                    <div>
+                        <label for="tone" class="text-sm font-semibold">Tone</label>
+                        <select id="tone" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                            <option>Professional</option>
+                            <option>Friendly</option>
+                            <option>Funny</option>
+                            <option>Promotional</option>
+                        </select>
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="audience" class="text-sm font-semibold">Target Audience</label>
+                        <input id="audience" type="text" placeholder="e.g. Teenagers, local families" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                    </div>
+                </div>
+
+                <button id="generateBtn" onclick="generatePost()" class="mt-6 w-full bg-brand-500 text-white py-3 rounded-xl font-bold hover:bg-brand-900 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                    Generate Content
+                </button>
+
+                <div id="loading" class="hidden mt-4 text-center text-brand-500 font-semibold animate-pulse">
+                    Generating AI captions...
+                </div>
+
+                <div id="errorBox" class="hidden mt-4 p-4 rounded-xl bg-red-50 text-red-700 border border-red-100"></div>
+            </div>
+        </section>
+
+        <section class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-slide-up hidden" id="outputSection">
+            <div class="content-card bg-white rounded-2xl p-8 border border-surface-200 flex flex-col h-full shadow-sm">
+                <h2 class="font-display text-xl font-bold text-charcoal mb-4">Caption Option 1</h2>
+                <p id="caption1" class="text-slate-700 leading-relaxed text-lg select-all"></p>
+            </div>
+
+            <div class="content-card bg-white rounded-2xl p-8 border border-surface-200 flex flex-col h-full shadow-sm">
+                <h2 class="font-display text-xl font-bold text-charcoal mb-4">Caption Option 2</h2>
+                <p id="caption2" class="text-slate-700 leading-relaxed text-lg select-all"></p>
+            </div>
+
+            <div class="content-card bg-white rounded-2xl p-8 border border-surface-200 md:col-span-2 shadow-sm">
+                <h2 class="font-display text-xl font-bold text-charcoal mb-4">Hashtags</h2>
+                <p id="hashtags" class="text-brand-500 font-medium select-all"></p>
+            </div>
+
+            <div class="content-card bg-brand-900 text-white rounded-2xl p-8 shadow-lg">
+                <h2 class="font-display text-xl font-bold mb-4">Call to Action</h2>
+                <p id="cta" class="text-brand-100 italic select-all"></p>
+            </div>
+
+            <div class="content-card bg-brand-50 rounded-2xl p-8 border border-brand-100 shadow-sm">
+                <h2 class="font-display text-xl font-bold text-brand-900 mb-4">Future Content Idea</h2>
+                <p id="idea" class="text-slate-700 font-medium select-all"></p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        async function generatePost() {
+            const payload = {
+                businessType: document.getElementById("businessType").value,
+                platform: document.getElementById("platform").value,
+                topic: document.getElementById("topic").value.trim(),
+                tone: document.getElementById("tone").value,
+                audience: document.getElementById("audience").value.trim()
+            };
+
+            const loading = document.getElementById("loading");
+            const output = document.getElementById("outputSection");
+            const btn = document.getElementById("generateBtn");
+            const errorBox = document.getElementById("errorBox");
+
+            errorBox.classList.add("hidden");
+            errorBox.innerText = "";
+            output.classList.add("hidden");
+            loading.classList.remove("hidden");
+            btn.innerText = "Generating...";
+            btn.disabled = true;
+
+            try {
+                const apiUrl = window.location.protocol === "file:" ? "http://127.0.0.1:5000/generate" : "/generate";
+
+                const response = await fetch("/generate", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+console.log("AI RESPONSE:", data);
+
+document.getElementById("caption1").innerText = data.caption1 || "";
+document.getElementById("caption2").innerText = data.caption2 || "";
+document.getElementById("hashtags").innerText = data.hashtags || "";
+document.getElementById("cta").innerText = data.cta || "";
+document.getElementById("idea").innerText = data.idea || "";
+
+                output.classList.remove("hidden");
+            } catch (error) {
+                console.error(error);
+                errorBox.innerText = error.message || "Request failed. Check the Flask terminal and browser console.";
+                errorBox.classList.remove("hidden");
+            } finally {
+                loading.classList.add("hidden");
+                btn.innerText = "Generate Content";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+
+</html>
