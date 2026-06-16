@@ -35,13 +35,12 @@ I built CaptionCraft AI to explore full-stack development, API integration, and 
 1. Clone the repository.
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/captioncraft-ai.git
-```
+git clone https://github.com/RadicalRis/CaptionCraftAI.git```
 
 2. Navigate into the project folder.
 
 ```bash
-cd captioncraft-ai
+cd CaptionCraftAI
 ```
 
 3. Install the required packages.
