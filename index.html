@@ -9,8 +9,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@500;700&family=Source+Sans+3:wght@400;500&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Outfit:wght@500;700&family=Source+Sans+3:wght@400;500;600&display=swap"
         rel="stylesheet">
+
     <script>
         tailwind.config = {
             theme: {
@@ -20,6 +21,7 @@
                             50: '#f0f9f9',
                             100: '#d9f0f0',
                             500: '#2d7a7a',
+                            700: '#1f5c5c',
                             900: '#132c2c',
                         },
                         surface: {
@@ -50,10 +52,66 @@
                 }
             }
         }
+
+        function showLockedVisualPreview(data) {
+            const image = document.getElementById("studioImage");
+            const imagePlaceholder = document.getElementById("studioImagePlaceholder");
+            const downloadLink = document.getElementById("downloadImageLink");
+
+            image.classList.add("hidden");
+            image.removeAttribute("src");
+            downloadLink.classList.add("hidden");
+            downloadLink.removeAttribute("href");
+
+            const title = data.locked_title || "Image generation locked";
+            const message = data.locked_message || "Subscribe to unlock AI-generated visuals.";
+            const headline = data.headline || "Premium Visual";
+            const subheadline = data.subheadline || "Upgrade to generate the final image.";
+
+            imagePlaceholder.classList.remove("hidden");
+            imagePlaceholder.innerHTML = `
+                <div class="relative min-h-[420px] locked-preview-bg overflow-hidden">
+                    <div class="absolute inset-0 blur-sm opacity-80 p-8">
+                        <div class="h-full rounded-2xl bg-white/70 border border-white/80 shadow-sm p-8 flex flex-col justify-between">
+                            <div>
+                                <div class="h-6 w-28 rounded-full bg-brand-100 mb-8"></div>
+                                <div class="h-12 w-3/4 rounded-xl bg-brand-500/40 mb-4"></div>
+                                <div class="h-5 w-2/3 rounded-lg bg-slate-300 mb-3"></div>
+                                <div class="h-5 w-1/2 rounded-lg bg-slate-300"></div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="h-20 rounded-xl bg-white/80"></div>
+                                <div class="h-20 rounded-xl bg-white/80"></div>
+                                <div class="h-20 rounded-xl bg-white/80"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 min-h-[420px] flex items-center justify-center p-6">
+                        <div class="max-w-sm text-center bg-white/90 backdrop-blur rounded-2xl border border-surface-200 shadow-lg p-7">
+                            <div class="mx-auto mb-4 h-14 w-14 rounded-full bg-brand-50 border border-brand-100 flex items-center justify-center text-2xl">🔒</div>
+                            <h3 class="font-display text-2xl font-bold text-charcoal mb-2">${title}</h3>
+                            <p class="text-slate-600 mb-5">${message}</p>
+                            <div class="text-left bg-slate-50 border border-surface-200 rounded-xl p-4 mb-5">
+                                <p class="font-bold text-brand-900">${headline}</p>
+                                <p class="text-sm text-slate-600 mt-1">${subheadline}</p>
+                            </div>
+                            <button disabled class="w-full py-3 rounded-xl bg-brand-500 text-white font-bold opacity-70 cursor-not-allowed">
+                                Subscribe to Unlock
+                            </button>
+                            <p class="text-xs text-slate-500 mt-3">Demo paywall — image prompt is still available below.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
     </script>
+
     <style>
         body {
-            background: radial-gradient(circle at top left, #d9f0f0, transparent 40%),
+            background:
+                radial-gradient(circle at top left, #d9f0f0, transparent 40%),
                 radial-gradient(circle at bottom right, #132c2c, transparent 45%),
                 linear-gradient(180deg, #f8fafc, #eef2f7);
             color: #1f2937;
@@ -70,6 +128,22 @@
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         }
 
+        .tab-active {
+            background: #2d7a7a;
+            color: white;
+        }
+
+        .tab-inactive {
+            background: white;
+            color: #334155;
+        }
+
+        .locked-preview-bg {
+            background:
+                linear-gradient(135deg, rgba(45, 122, 122, 0.18), rgba(19, 44, 44, 0.18)),
+                repeating-linear-gradient(45deg, #f8fafc 0 18px, #e2e8f0 18px 36px);
+        }
+
         ::selection {
             background: #d9f0f0;
             color: #132c2c;
@@ -79,19 +153,34 @@
 
 <body class="font-body selection:bg-brand-100">
     <header class="py-12 px-6 animate-fade-in">
-        <div class="max-w-4xl mx-auto text-center">
+        <div class="max-w-5xl mx-auto text-center">
             <h1 class="font-display text-4xl md:text-5xl font-bold tracking-tight text-charcoal mb-4">
                 CaptionCraft <span class="text-brand-500">AI</span>
             </h1>
-            <p class="text-slate-600 max-w-xl mx-auto">Generate small-business captions, hashtags, CTAs, and future post ideas in seconds.</p>
-            <div class="h-1 w-20 bg-brand-500 mx-auto rounded-full opacity-60 mt-4"></div>
+            <p class="text-slate-600 max-w-2xl mx-auto">
+                Generate captions, hashtags, CTAs, content ideas, and full AI-generated social media post visuals.
+            </p>
+            <div class="h-1 w-20 bg-brand-500 mx-auto rounded-full opacity-60 mt-4 mb-8"></div>
+
+            <div class="flex flex-wrap justify-center gap-3">
+                <button id="captionTab"
+                    class="tab-active px-5 py-3 rounded-xl font-semibold shadow-sm border border-surface-200"
+                    onclick="showTab('caption')">
+                    Caption Generator
+                </button>
+                <button id="studioTab"
+                    class="tab-inactive px-5 py-3 rounded-xl font-semibold shadow-sm border border-surface-200"
+                    onclick="showTab('studio')">
+                    AI Post Studio
+                </button>
+            </div>
         </div>
     </header>
 
-    <main class="max-w-5xl mx-auto px-6 pb-20">
-        <section class="mb-12 animate-slide-up">
-            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-surface-200">
-                <h2 class="font-display text-2xl font-bold text-charcoal mb-6">Create Your Post</h2>
+    <main class="max-w-6xl mx-auto px-6 pb-20">
+        <section id="captionSection" class="animate-slide-up">
+            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-surface-200 mb-10">
+                <h2 class="font-display text-2xl font-bold text-charcoal mb-6">Create Your Caption</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -118,7 +207,8 @@
 
                     <div>
                         <label for="topic" class="text-sm font-semibold">Post Topic</label>
-                        <input id="topic" type="text" placeholder="e.g. Weekend sale" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                        <input id="topic" type="text" placeholder="e.g. Weekend sale"
+                            class="w-full mt-2 p-3 rounded-xl border border-surface-200">
                     </div>
 
                     <div>
@@ -133,11 +223,13 @@
 
                     <div class="md:col-span-2">
                         <label for="audience" class="text-sm font-semibold">Target Audience</label>
-                        <input id="audience" type="text" placeholder="e.g. Teenagers, local families" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                        <input id="audience" type="text" placeholder="e.g. Teenagers, local families"
+                            class="w-full mt-2 p-3 rounded-xl border border-surface-200">
                     </div>
                 </div>
 
-                <button id="generateBtn" onclick="generatePost()" class="mt-6 w-full bg-brand-500 text-white py-3 rounded-xl font-bold hover:bg-brand-900 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                <button id="generateBtn" onclick="generateCaptionContent()"
+                    class="mt-6 w-full bg-brand-500 text-white py-3 rounded-xl font-bold hover:bg-brand-900 transition disabled:opacity-60 disabled:cursor-not-allowed">
                     Generate Content
                 </button>
 
@@ -145,40 +237,219 @@
                     Generating AI captions...
                 </div>
 
-                <div id="errorBox" class="hidden mt-4 p-4 rounded-xl bg-red-50 text-red-700 border border-red-100"></div>
+                <div id="errorBox"
+                    class="hidden mt-4 p-4 rounded-xl bg-red-50 text-red-700 border border-red-100"></div>
             </div>
+
+            <section class="grid grid-cols-1 md:grid-cols-2 gap-6 hidden" id="outputSection">
+                <div
+                    class="content-card bg-white rounded-2xl p-8 border border-surface-200 flex flex-col h-full shadow-sm">
+                    <h2 class="font-display text-xl font-bold text-charcoal mb-4">Caption Option 1</h2>
+                    <p id="caption1" class="text-slate-700 leading-relaxed text-lg select-all"></p>
+                </div>
+
+                <div
+                    class="content-card bg-white rounded-2xl p-8 border border-surface-200 flex flex-col h-full shadow-sm">
+                    <h2 class="font-display text-xl font-bold text-charcoal mb-4">Caption Option 2</h2>
+                    <p id="caption2" class="text-slate-700 leading-relaxed text-lg select-all"></p>
+                </div>
+
+                <div class="content-card bg-white rounded-2xl p-8 border border-surface-200 md:col-span-2 shadow-sm">
+                    <h2 class="font-display text-xl font-bold text-charcoal mb-4">Hashtags</h2>
+                    <p id="hashtags" class="text-brand-500 font-medium select-all"></p>
+                </div>
+
+                <div class="content-card bg-brand-900 text-white rounded-2xl p-8 shadow-lg">
+                    <h2 class="font-display text-xl font-bold mb-4">Call to Action</h2>
+                    <p id="cta" class="text-brand-100 italic select-all"></p>
+                </div>
+
+                <div class="content-card bg-brand-50 rounded-2xl p-8 border border-brand-100 shadow-sm">
+                    <h2 class="font-display text-xl font-bold text-brand-900 mb-4">Future Content Idea</h2>
+                    <p id="idea" class="text-slate-700 font-medium select-all"></p>
+                </div>
+            </section>
         </section>
 
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-6 animate-slide-up hidden" id="outputSection">
-            <div class="content-card bg-white rounded-2xl p-8 border border-surface-200 flex flex-col h-full shadow-sm">
-                <h2 class="font-display text-xl font-bold text-charcoal mb-4">Caption Option 1</h2>
-                <p id="caption1" class="text-slate-700 leading-relaxed text-lg select-all"></p>
+        <section id="studioSection" class="hidden animate-slide-up">
+            <div class="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-surface-200 mb-10">
+                <div class="flex items-start justify-between gap-4 mb-6">
+                    <div>
+                        <h2 class="font-display text-2xl font-bold text-charcoal">AI Post Studio</h2>
+                        <p class="text-slate-600 mt-1">
+                            Generate a full post package. Image generation is shown as a locked premium preview when API billing is disabled.
+                        </p>
+                    </div>
+                    <div class="hidden md:block text-right text-xs text-slate-500 max-w-xs">
+                        Text is generated now. Visual generation can be unlocked later with API billing/subscription.
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="studioBusinessType" class="text-sm font-semibold">Business Type</label>
+                        <select id="studioBusinessType" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                            <option>Restaurant</option>
+                            <option>Coffee Shop</option>
+                            <option>Gym</option>
+                            <option>Clothing Store</option>
+                            <option>Real Estate</option>
+                            <option>Other</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="studioPlatform" class="text-sm font-semibold">Platform</label>
+                        <select id="studioPlatform" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                            <option>Instagram</option>
+                            <option>Facebook</option>
+                            <option>TikTok</option>
+                            <option>LinkedIn</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="studioTopic" class="text-sm font-semibold">Post Topic</label>
+                        <input id="studioTopic" type="text" placeholder="e.g. Grand opening"
+                            class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                    </div>
+
+                    <div>
+                        <label for="studioGoal" class="text-sm font-semibold">Goal</label>
+                        <select id="studioGoal" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                            <option>Promotion</option>
+                            <option>Announcement</option>
+                            <option>Engagement</option>
+                            <option>Informative</option>
+                            <option>Brand Awareness</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="studioStyle" class="text-sm font-semibold">Visual Style</label>
+                        <select id="studioStyle" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                            <option>Modern</option>
+                            <option>Minimal</option>
+                            <option>Bold</option>
+                            <option>Professional</option>
+                            <option>Playful</option>
+                            <option>Luxury</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="studioFormat" class="text-sm font-semibold">Format</label>
+                        <select id="studioFormat" class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                            <option>Square Post</option>
+                            <option>Portrait / Story</option>
+                            <option>Landscape Banner</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="studioColors" class="text-sm font-semibold">Colors / Brand Vibe</label>
+                        <input id="studioColors" type="text" placeholder="e.g. teal and white, clean and fresh"
+                            class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                    </div>
+
+                    <div>
+                        <label for="studioAudience" class="text-sm font-semibold">Target Audience</label>
+                        <input id="studioAudience" type="text" placeholder="e.g. Students, local families"
+                            class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label for="studioTextOnImage" class="text-sm font-semibold">Preferred Text on Image
+                            (optional)</label>
+                        <input id="studioTextOnImage" type="text"
+                            placeholder="e.g. Summer Sale, 20% Off, New Collection"
+                            class="w-full mt-2 p-3 rounded-xl border border-surface-200">
+                        <p class="text-xs text-slate-500 mt-2">
+                            Keep this short. Gemini handles short, planned text better than paragraphs.
+                        </p>
+                    </div>
+                </div>
+
+                <button id="generateStudioBtn" onclick="generateStudioPost()"
+                    class="mt-6 w-full bg-brand-500 text-white py-3 rounded-xl font-bold hover:bg-brand-900 transition disabled:opacity-60 disabled:cursor-not-allowed">
+                    Generate Post Package
+                </button>
+
+                <div id="studioLoading" class="hidden mt-4 text-center text-brand-500 font-semibold animate-pulse">
+                    Creating your post package...
+                </div>
+
+                <div id="studioError"
+                    class="hidden mt-4 p-4 rounded-xl bg-red-50 text-red-700 border border-red-100"></div>
             </div>
 
-            <div class="content-card bg-white rounded-2xl p-8 border border-surface-200 flex flex-col h-full shadow-sm">
-                <h2 class="font-display text-xl font-bold text-charcoal mb-4">Caption Option 2</h2>
-                <p id="caption2" class="text-slate-700 leading-relaxed text-lg select-all"></p>
-            </div>
+            <section id="studioOutputSection" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="content-card bg-white rounded-2xl p-6 border border-surface-200 shadow-sm lg:row-span-4">
+                    <h2 class="font-display text-xl font-bold text-charcoal mb-4">Generated Visual</h2>
+                    <div class="rounded-2xl overflow-hidden bg-slate-100 border border-surface-200">
+                        <img id="studioImage" alt="Generated social media post" class="w-full h-auto object-cover hidden">
+                        <div id="studioImagePlaceholder" class="p-10 text-center text-slate-500">
+                            Your generated visual preview will appear here.
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap gap-3 mt-4">
+                        <a id="downloadImageLink" href="#" download="captioncraft-post.png"
+                            class="hidden inline-flex items-center justify-center px-4 py-2 rounded-xl bg-brand-500 text-white font-semibold hover:bg-brand-900 transition">
+                            Download Image
+                        </a>
+                    </div>
+                    <div id="studioMeta" class="mt-4 text-sm text-slate-500"></div>
+                </div>
 
-            <div class="content-card bg-white rounded-2xl p-8 border border-surface-200 md:col-span-2 shadow-sm">
-                <h2 class="font-display text-xl font-bold text-charcoal mb-4">Hashtags</h2>
-                <p id="hashtags" class="text-brand-500 font-medium select-all"></p>
-            </div>
+                <div class="content-card bg-white rounded-2xl p-8 border border-surface-200 shadow-sm">
+                    <h2 class="font-display text-xl font-bold text-charcoal mb-4">On-Image Copy</h2>
+                    <p id="studioHeadline" class="text-2xl font-bold text-brand-900 leading-tight select-all"></p>
+                    <p id="studioSubheadline" class="text-slate-600 mt-3 text-lg select-all"></p>
+                </div>
 
-            <div class="content-card bg-brand-900 text-white rounded-2xl p-8 shadow-lg">
-                <h2 class="font-display text-xl font-bold mb-4">Call to Action</h2>
-                <p id="cta" class="text-brand-100 italic select-all"></p>
-            </div>
+                <div class="content-card bg-white rounded-2xl p-8 border border-surface-200 shadow-sm">
+                    <h2 class="font-display text-xl font-bold text-charcoal mb-4">Matching Caption</h2>
+                    <p id="studioCaption" class="text-slate-700 leading-relaxed text-lg select-all"></p>
+                </div>
 
-            <div class="content-card bg-brand-50 rounded-2xl p-8 border border-brand-100 shadow-sm">
-                <h2 class="font-display text-xl font-bold text-brand-900 mb-4">Future Content Idea</h2>
-                <p id="idea" class="text-slate-700 font-medium select-all"></p>
-            </div>
+                <div class="content-card bg-brand-50 rounded-2xl p-8 border border-brand-100 shadow-sm">
+                    <h2 class="font-display text-xl font-bold text-brand-900 mb-4">Hashtags</h2>
+                    <p id="studioHashtags" class="text-brand-700 font-medium select-all"></p>
+                </div>
+
+                <details class="content-card bg-white rounded-2xl p-6 border border-surface-200 shadow-sm">
+                    <summary class="font-display text-lg font-bold text-charcoal cursor-pointer">Image Prompt</summary>
+                    <p id="studioPrompt" class="text-slate-600 mt-4 text-sm whitespace-pre-wrap select-all"></p>
+                </details>
+            </section>
         </section>
     </main>
 
     <script>
-        async function generatePost() {
+        function showTab(tab) {
+            const captionSection = document.getElementById("captionSection");
+            const studioSection = document.getElementById("studioSection");
+            const captionTab = document.getElementById("captionTab");
+            const studioTab = document.getElementById("studioTab");
+
+            if (tab === "caption") {
+                captionSection.classList.remove("hidden");
+                studioSection.classList.add("hidden");
+                captionTab.classList.add("tab-active");
+                captionTab.classList.remove("tab-inactive");
+                studioTab.classList.add("tab-inactive");
+                studioTab.classList.remove("tab-active");
+            } else {
+                studioSection.classList.remove("hidden");
+                captionSection.classList.add("hidden");
+                studioTab.classList.add("tab-active");
+                studioTab.classList.remove("tab-inactive");
+                captionTab.classList.add("tab-inactive");
+                captionTab.classList.remove("tab-active");
+            }
+        }
+
+        async function generateCaptionContent() {
             const payload = {
                 businessType: document.getElementById("businessType").value,
                 platform: document.getElementById("platform").value,
@@ -200,8 +471,6 @@
             btn.disabled = true;
 
             try {
-                const apiUrl = window.location.protocol === "file:" ? "http://127.0.0.1:5000/generate" : "/generate";
-
                 const response = await fetch("/generate", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
@@ -210,13 +479,15 @@
 
                 const data = await response.json();
 
-console.log("AI RESPONSE:", data);
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to generate content.");
+                }
 
-document.getElementById("caption1").innerText = data.caption1 || "";
-document.getElementById("caption2").innerText = data.caption2 || "";
-document.getElementById("hashtags").innerText = data.hashtags || "";
-document.getElementById("cta").innerText = data.cta || "";
-document.getElementById("idea").innerText = data.idea || "";
+                document.getElementById("caption1").innerText = data.caption1 || "";
+                document.getElementById("caption2").innerText = data.caption2 || "";
+                document.getElementById("hashtags").innerText = data.hashtags || "";
+                document.getElementById("cta").innerText = data.cta || "";
+                document.getElementById("idea").innerText = data.idea || "";
 
                 output.classList.remove("hidden");
             } catch (error) {
@@ -229,6 +500,149 @@ document.getElementById("idea").innerText = data.idea || "";
                 btn.disabled = false;
             }
         }
+
+        async function generateStudioPost() {
+            const payload = {
+                businessType: document.getElementById("studioBusinessType").value,
+                platform: document.getElementById("studioPlatform").value,
+                topic: document.getElementById("studioTopic").value.trim(),
+                goal: document.getElementById("studioGoal").value,
+                style: document.getElementById("studioStyle").value,
+                format: document.getElementById("studioFormat").value,
+                colors: document.getElementById("studioColors").value.trim(),
+                audience: document.getElementById("studioAudience").value.trim(),
+                textOnImage: document.getElementById("studioTextOnImage").value.trim()
+            };
+
+            const btn = document.getElementById("generateStudioBtn");
+            const loading = document.getElementById("studioLoading");
+            const errorBox = document.getElementById("studioError");
+            const output = document.getElementById("studioOutputSection");
+            const image = document.getElementById("studioImage");
+            const imagePlaceholder = document.getElementById("studioImagePlaceholder");
+            const meta = document.getElementById("studioMeta");
+            const downloadLink = document.getElementById("downloadImageLink");
+
+            errorBox.classList.add("hidden");
+            errorBox.innerText = "";
+            output.classList.add("hidden");
+            meta.innerText = "";
+            image.classList.add("hidden");
+            image.removeAttribute("src");
+            imagePlaceholder.classList.remove("hidden");
+            imagePlaceholder.innerText = "Your generated visual preview will appear here.";
+            downloadLink.classList.add("hidden");
+            downloadLink.removeAttribute("href");
+
+            if (!payload.topic) {
+                errorBox.innerText = "Please enter a post topic.";
+                errorBox.classList.remove("hidden");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "Generating...";
+            loading.classList.remove("hidden");
+
+            try {
+                const response = await fetch("/generate-visual-post", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    const message = [data.error, data.details].filter(Boolean).join(" ");
+                    throw new Error(message || "Failed to generate visual post.");
+                }
+
+                document.getElementById("studioHeadline").innerText = data.headline || "";
+                document.getElementById("studioSubheadline").innerText = data.subheadline || "";
+                document.getElementById("studioCaption").innerText = data.caption || "";
+                document.getElementById("studioHashtags").innerText = data.hashtags || "";
+                document.getElementById("studioPrompt").innerText = data.image_prompt || "";
+
+                if (data.image_url && !data.image_locked) {
+                    image.src = data.image_url;
+                    image.classList.remove("hidden");
+                    imagePlaceholder.classList.add("hidden");
+                    downloadLink.href = data.image_url;
+                    downloadLink.classList.remove("hidden");
+                    meta.innerText = `Model: ${data.image_model || "Gemini image"} | Aspect ratio: ${data.aspect_ratio || "1:1"}`;
+                } else {
+                    showLockedVisualPreview(data);
+                    meta.innerText = data.image_status === "locked"
+                        ? "Image generation is currently locked. Text package generated successfully."
+                        : "Image generation unavailable. Text package generated successfully.";
+                }
+
+                output.classList.remove("hidden");
+            } catch (error) {
+                console.error(error);
+                errorBox.innerText = error.message || "Visual post generation failed.";
+                errorBox.classList.remove("hidden");
+            } finally {
+                loading.classList.add("hidden");
+                btn.disabled = false;
+                btn.innerText = "Generate Post Package";
+            }
+        }
+
+        function showLockedVisualPreview(data) {
+            const image = document.getElementById("studioImage");
+            const imagePlaceholder = document.getElementById("studioImagePlaceholder");
+            const downloadLink = document.getElementById("downloadImageLink");
+
+            image.classList.add("hidden");
+            image.removeAttribute("src");
+            downloadLink.classList.add("hidden");
+            downloadLink.removeAttribute("href");
+
+            const title = data.locked_title || "Image generation locked";
+            const message = data.locked_message || "Subscribe to unlock AI-generated visuals.";
+            const headline = data.headline || "Premium Visual";
+            const subheadline = data.subheadline || "Upgrade to generate the final image.";
+
+            imagePlaceholder.classList.remove("hidden");
+            imagePlaceholder.innerHTML = `
+                <div class="relative min-h-[420px] locked-preview-bg overflow-hidden">
+                    <div class="absolute inset-0 blur-sm opacity-80 p-8">
+                        <div class="h-full rounded-2xl bg-white/70 border border-white/80 shadow-sm p-8 flex flex-col justify-between">
+                            <div>
+                                <div class="h-6 w-28 rounded-full bg-brand-100 mb-8"></div>
+                                <div class="h-12 w-3/4 rounded-xl bg-brand-500/40 mb-4"></div>
+                                <div class="h-5 w-2/3 rounded-lg bg-slate-300 mb-3"></div>
+                                <div class="h-5 w-1/2 rounded-lg bg-slate-300"></div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-3">
+                                <div class="h-20 rounded-xl bg-white/80"></div>
+                                <div class="h-20 rounded-xl bg-white/80"></div>
+                                <div class="h-20 rounded-xl bg-white/80"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="relative z-10 min-h-[420px] flex items-center justify-center p-6">
+                        <div class="max-w-sm text-center bg-white/90 backdrop-blur rounded-2xl border border-surface-200 shadow-lg p-7">
+                            <div class="mx-auto mb-4 h-14 w-14 rounded-full bg-brand-50 border border-brand-100 flex items-center justify-center text-2xl">🔒</div>
+                            <h3 class="font-display text-2xl font-bold text-charcoal mb-2">${title}</h3>
+                            <p class="text-slate-600 mb-5">${message}</p>
+                            <div class="text-left bg-slate-50 border border-surface-200 rounded-xl p-4 mb-5">
+                                <p class="font-bold text-brand-900">${headline}</p>
+                                <p class="text-sm text-slate-600 mt-1">${subheadline}</p>
+                            </div>
+                            <button disabled class="w-full py-3 rounded-xl bg-brand-500 text-white font-bold opacity-70 cursor-not-allowed">
+                                Subscribe to Unlock
+                            </button>
+                            <p class="text-xs text-slate-500 mt-3">Demo paywall — image prompt is still available below.</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
     </script>
 </body>
 
